@@ -1,0 +1,513 @@
+0.获取可编辑表格的editor
+	给表格添加oneditorcreated事件;此事件在editor创建后触发; 可用e.editor获取此editor;
+01.页面布局(上下,左右分割)
+	me.hSplit = new mx.containers.HSplit({
+    	    rows:"43%, 57%",
+    	    resizable : true,
+    	    activePanelIndex : 0,// 隐藏按钮 获取或设置哪个面 板可隐藏或展开。 该值为一个数字，表示控件中哪							// 个 Panel 的索引（如果是 VSplit，“0”表示左边的 Panel，“1”表示右边							// 的 Panel。如果是 HSplit，“0”表示上面的 Panel，“1”表示下面的 								// Panel）。
+    	    borderThick : 0,
+    	    onresize: me.hsplitOnresize
+    	});
+
+1.searchBox重写重置按钮方法
+
+me.searchBox.setFields();// 加载查询区
+me.searchBox.resstButton.off("click");
+me.searchBox.resetButton.on("click",me.controller.btnResetCheck_click);
+me.searchBox.searchButton.on("click",me.controller.query);
+小注：要先关闭自己生成的重置按钮，再重写方法！！！
+
+
+2.下拉框items格式:[{text:"",value:""}];
+小注： 向下拉框里设置值的时候用：
+先清除下拉框中的值：e.target.clearItems();
+使用循环拼接数组：e.target.appendItem("键","值"); 
+拼接键值对组：dropDownEditor.appendItems([
+				{ name: "老师", value: "Teacher" },
+				{ name: "牛奶", value: "Milk" }
+				]);
+                    
+前台显示数据：		setText()；
+
+setItems(p_items):设置 items 字段的值。该方法首先会清空 items 集合,p_items:一个数组，该数组包含了一组 ListItem 对象。
+
+设置后台数据的值：  setValue()；该设置只会显示一个值
+dropDownEditor.setValue("StudentA", "学生A");      
+					//将实际值设为“StudentA”，显示值设为“学生A”。由于列表项中没有“StudentA”项，所有不选中任何项，也不触发 onchanged 事件。
+dropDownEditor.setValue("Student", true);         
+					// 将实际值设为“Student”，选中“Student”项，并显示对应的显示值“学生”，同时触发 onchanged 事件。
+dropDownEditor.setValue("Student", "学生A", true); 
+					// 将实际值设为“Student”，选中“Student”项，并将显示值设为“学生A”，同时触发 onchanged 事件
+
+
+3.后台返回前台的list 前台使用data.resultValue.items获取
+
+4.执行查询sql语句 
+    (1).queryForListWithSql(),带字段名,数据量无限制,返回值类型为:List<Map<String,Object>
+	(2).executeSqlQuery(),不带字段名,数据量在两千条之内,返回值类型为List<Object[]>
+
+7.执行更新sql语句
+    batchUpdateWithSql(sql[]); 批量执行更新语句 
+	
+5.前台往后台传递参数,后台直接获取,需要变量名相同.
+
+6.定义Map
+    Map<String,Object> map = new HashMap<String,Object>();
+	
+8.给dataGrid添加过滤条件
+    me.view.dataGrid.setFilter(params);
+	
+9.提示信息
+    mx.indicate("info","");
+	
+10.关闭弹出窗口
+    me.view.parent.hide();
+	
+11.ondropdown: 点击下拉框触发事件
+
+12.将数据库中的表导出为excel,(从dataGrid中导出)
+	var dataGrid = me.view.dataGrid;
+	grid.exportExcel({
+		tableName: "要导出的数据库中表名(必填)",
+		columnNames: "上面表的字段名(与数据库中的一致)",
+		columnCaptions: "上面的字段名描述",
+		filter: "过滤条件(按条件过滤,字段名要与数据库中的字段一致)",
+		pageIndex :1, // 设置pageindex必须设置pageSize,否则导出全部数据.
+		pageSize: 20,
+		fileName: "导出文件名"
+	})
+	
+	获取或设置导出 Excel 时服务端需要的参数。 该属性为一个 JSON 对象，如（{ tableName:"t_user", columnNames:"name,age,gender", columnCaptions:"姓名,年龄,性别", pageIndex:1, pageSize:20, filter:"gender='男' and age=25", fileName:"用户表格"}）。 其中 tableName 表示表名称、columnNames 表示数据库列名（以逗号隔开）、columnCaptions 表示导出 Excel 的标题（以逗号隔开）、pageIndex 表示导出第几页的数据（第一页为 1）、pageSize 表示每页的条数、filter 表示过滤条件、fileName 表示导出的文件名。 这些参数中必须要传的为：tableName、columnCaptions。
+
+13.将excel文件导入到数据库 
+
+14.设置表格某一列字段点击事件(超链接)
+view:
+	renderCell:me.controller.renderCell_click;
+controller:
+	me.renderCell_click = function(p_item,$p_cell){
+		//为某一列 添加超链接
+	    $p_cell[0].innerText="上传";
+	    var value = $p_cell[0].innerText;
+		$p_cell.text(value);
+		$p_cell[0].style.color = 'blue';
+		$p_cell[0].style.textDecoration = 'underline';
+		$p_cell[0].style.cursor = 'hand';
+		$p_cell[0].onclick = function(){
+			//具体要实现的功能
+		}
+	}
+	
+15.新建窗口
+	me.jhxjWin1 =new mx.windows.WindowManager();
+	me.jhxjWin =me.jhxjWin1.create({
+			reusable : true,
+			resizable : true,
+			width : 900,
+			height : 500,
+			left : "center",
+			top : "center",
+			title : "新建部门"
+	});
+
+16.BigDecimal转化为int
+	BigDecimal.intValue();
+	String.valueOf();
+	Integer.valueOf();
+
+17.设置表格哪一列可编辑
+	需先设置dataGrid属性allowEditing = true和事件: oncellediting: me.controller.cellediting,
+	me.cellEditing = function(e){
+		var column = e.column.name;
+		if(column == "列名"){
+			e.cancel = false;//设置这一列为可编辑状态
+		}else{
+			e.cancel = true;
+		}
+	}
+	
+18.让表格中的某些满足条件的数据显示为红色
+	for(var i=0;i<me.view.dataGrid.items.length;i++){
+		if(me.view.dataGrid.items[i].values."columnName" >=3000){// 条件
+			// 某一列满足条件的数据变为红色
+			me.view.dataGrid.items[i].$e.find("#depPerNum")[0].style.color = "red";
+			me.view.dataGrid.items[i].cells[1].style.color = "red";
+			// 满足条件的数据整行变为红色
+			me.view.dataGrid.items[i].$e[0].style.color = "red";
+		}
+	}
+
+18.给分页工具条添加一个span元素
+	me.dataGrid.pageNaviBar.$e.find("#refresh").after("<span style='color:red;width:800px'>hintInfo</span>");
+	
+	
+19.向页面,某一指定位置添加标签的方法:
+			<p>Hello<p>
+	append: $("p").append("<b>world<b>") => <p> <b>world<b> Hello<p>
+	prepend: $("p").prepend("<b>world<b>") => <p>Hello <b>world<b> <p>
+	after: $("p").after("<b>world<b>") => <p>Hello<p> <b>world<b>
+	before: $("p").before("<b>world<b>") => <b>world<b> <p>Hello<p>
+
+20.新建窗口视图
+		windowManager = new mx.windows.WindowManager();
+		newWindow = windowManager.create({
+			reusable:true,// 是否复用
+			resizable:true,// 是否可以改变窗口大小
+			width:900,
+			height:500,
+			left:"center",
+			top:"center",
+			title:'新窗口'
+		})
+		
+21.前台用ajax向后台请求的数据,后台返回List,前台使用 data.resultValue.items 接收结果
+
+22.新建的弹出窗口,关闭的方法用hide(),如用close(),则彻底关闭,下次不可调用.
+
+23.rest请求(请直接观看 rest请求总结)
+	get:
+		var _rest = new mx.rpc.RESTClient();
+		_rest.get(ddd.mappath(""), params, function(data){
+			if(data.successful){
+				//操作
+				data.resultValue.items;//结果
+			}
+		})
+	post:
+		var _rest = new mx.rpc.RESTClient();
+		_rest.post(ddd.mappath(""), JSON.stringify({"items": data}), function({
+			if(data.successful){
+				//opeartor;
+			}
+		}));
+
+24.异步get请求(请直接观看 rest请求总结)
+	var restClient = new mx.rpc.RESTClient();
+			var params = {
+					"filter" : "jxjhid=" + me.objId + "&shrid=" + me.ryid/* + "&shhjid=" + me.shhjId*/,
+					"columns" : "objId"
+				};
+			
+			var ret = restClient.getSync(dblcsh
+					.mappath("~/rest/tyjdwyjjxjhshyj/"), {
+				"params" : JSON.stringify(params)
+			});
+			
+	restClient.sendSync(
+			jhzxqkhzb.mappath("~/rest/tyjdwyjjhzxqktjb/delete"),
+										"post", JSON.stringify({
+													"ids" : obj_id
+												}));
+		
+		
+25.customEditor
+	// customEditor编辑器点击事件
+	me.searchDepNameClick = function(e) {
+		if(me.view.hSplit.controls.length ==0){
+		// 获取树视图
+		var mvc = new tree.views.TreeViewController();
+		me.treeView = mvc.getView().getTreeView();
+		// 将树视图和按钮添加到树窗口中
+		me.view.hSplit.addControl(me.treeView,0);
+		me.view.hSplit.addControls([me.view.button1, me.view.button2],1);
+		}
+		//加载树视图
+		me.treeView.load();
+		// 弹出树窗口
+		me.view.treeWindow.showDialog();
+	}
+	// treeWindow确定按钮点击
+	me.treeConfirm = function() {
+		me.view.searchBox.editors[0].setValue(me.treeView.selection.text);
+		me.view.treeWindow.hide();
+	}
+	// treeWindow取消按钮点击
+	me.treeCancel = function() {
+		me.view.treeWindow.hide();
+	}
+	
+	my:
+	 var window = null;
+    var trees = null;
+    var SureButton = null;
+    var CancelButton = null;
+    me._click = function(e){
+    	//获取上下分隔控件
+    	var hSplit = me.view.gethSplitTwo();
+    	if(hSplit.controls.length == 0){
+    		//获取到树
+		    var treeView = new tree.views.TreeViewController().getView();	
+		    trees = treeView.getTreeView();
+		    //获取到一个窗口
+		    window  = mx.windows.WindowManager().create({
+		    	title: "部门名称导航树", 
+		    	width: 350,
+		   		height: 300 
+		    });	
+		    //一个确定按钮，一个取消按钮	
+		    SureButton = me.view.getSureButton();
+		    CancelButton = me.view.getCancelButton();
+		    //将树和两个按钮放到窗口中，进行选择
+		    window.addControl(hSplit);
+		    hSplit.addControl(trees,0);
+		    hSplit.addControls([SureButton,CancelButton],1);
+		    
+    	}
+    	//加载树
+		 trees.load();
+    	 window.showDialog(); 	
+    	//点击确定窗口，将选好的树节点填入编辑框中，并关闭窗口
+    	SureButton.on("click",function(){
+    		//获取选中的树节点,赋值给搜索框的编辑框
+    		debugger
+    		var value = trees.selection.text;
+    		me.view.getDataGrid().searchBox.editors[0].setValue(value);
+    		//关闭窗口
+    		window.hide();
+    	});
+    	//点击取消按钮，关闭窗口
+	    CancelButton.on("click",function(){
+	    	debugger
+	    	//关闭窗口
+	    	window.hide();
+	    });
+	
+    }
+	
+26. var o = e || "2";
+ e未定义时 o="2";e定义时 o=e;
+												
+27.JavaScript join();
+	把数组中的所有元素转换成一个字符串, 是将一个纯数组，转换为字符串形式的。例["fv","vc","fvwq"]---"fv","vc","fvwq"
+	参数separator:可选,不选默认使用","分隔.
+	
+28.为下拉框赋默认值
+	editors.setValue("",true);使用true,可以改变entitycontainer中data的值,传到后台,触发onChange事件.
+
+29.两个下拉框之间的联动
+若只有不多的根节点，可以在前台用条件语句实现下拉框联动，
+若是根节点比较多，需要通过走后台的形式实现下拉框联动显示。
+//“所属模块”下拉框中与“所属项目”联动
+    					var items = p_view.getForm().entityContainer.dicts.moduleId;
+        				var newItems = new Array();
+        				
+        				if(firstMenu == "p-001")
+        				{
+        					items.removeAt("03");
+        					items.removeAt("03");
+        					items.removeAt("03");
+        					newItems = items;
+        					p_view.getForm().editors.moduleId.clearItems();
+        					p_view.getForm().editors.moduleId.appendItems(newItems)
+        				}
+        				if(firstMenu == "p-002")
+        				{
+        					items.removeAt("00");
+        					items.removeAt("00");
+        					items.removeAt("00");
+        					newItems = items;
+        					p_view.getForm().editors.moduleId.clearItems();
+        					p_view.getForm().editors.moduleId.appendItems(newItems)
+        				}
+					}
+					
+*30. FileEditor: 文件编辑器		
+			name: "bugFile", caption: "BUG_FILE" , 
+	            editorType: "FileEditor",//类型为文件编辑器
+	            type: "form",//类型声明为 form
+	            uploadMode: "file",//保存方式为file，文件会保存到服务器指定磁盘路径；为blob会保存到数据库的BLOB类型字段中。
+	            tableName: "UAP_BUG",//数据对应的表名，必须是数据库中的物理表名
+	            primaryKey: "ID",//数据表的主键字段名
+	            colName: "BUG_File"//当前字段在数据库中的物理名称
+				
+31:设置下拉框不可编辑
+	.editors[""].setReadOnly(true);
+	
+	controls,entityContainer.data  ,items, editors,   dataGrid.getCheckedIDs();
+	
+*32.StringBuffer和StringBuilder
+	StringBuilder有速度优势,但是线程不安全(不能同步访问).
+
+33.可编辑表格获取编辑的项目:
+	me.view.dataGrid.entityContainer._changedItems
+//前台完整的方法实现
+	//第二中方法，需要获取修改后的值，自己写后台保存
+    	var client = new mx.rpc.RESTClient();
+    	//首先拿到dataGrid，查到列是否是编辑状态，若是拿到编辑后的值，若不是，不管。循环实现
+    	var dataGrid = me.view.getDataGrid();
+    	dataGrid.clearEditor();//关闭editor
+    	if(dataGrid.hasChanged()){
+    		//var v = dataGrid.entityContainer._changedItems();//这个方法和va方法一样的结果展现，是一个个的对象
+    		//var va = dataGrid.entityContainer.getChanges();//这个方法是获取一个个的对象
+    		var vaa = dataGrid.entityContainer.getChangedItems();//这个是获取一个数组（数组元素是键值对形式）
+    		//后台传值
+    		 client.post(sig_bug.mappath("~/rest/uapbug/editBug"),
+    	    		 JSON.stringify({"items" : vaa}),
+    	    		 function(data){
+    	    		 	if(data){
+    	    		 		mx.indicate("info","保存成功！");
+    	    		 		me.view.getDataGrid().load(me.view.moduleId);
+    	    		 	}
+    	    		 });
+    		
+    	}
+
+34.dataGrid排序
+	allowSorting: true;
+
+35.通过执行sqls.xml文件中的sql语句,获得结果
+	result = hibernateDao.executeSqlQueryByID("selZwycsbxxBySbmc",
+                    new Object[] { sbmc, xlid });
+
+					new　object[] {};参数格式 ;占位符
+
+	sqlString = "SELECT OBJ_ID,DYDJ FROM SCYW.T_SB_ZWYC_XL"
+					+ " WHERE OBJ_ID = ?"
+					+ "  AND ROWNUM = 1";
+			List returnList = hibernateDao.executeSqlQuery(sqlString,new Object[]{dzorxl});
+
+36.开发者模式查找内容. 
+	weblet.js 中 onstart 中的视图就是开始加载的视图.
+
+*！！！37.window.onresize: 自适应屏幕大小.
+
+
+38.单选,复选框
+		me.checkListEditor = new mx.editors.CheckListEditor({
+                type:"checkbox",//根据 redio 还是 checkBox 决定 是单选框 还是 复选框。
+                columns:6,
+                position:"relative",
+                left:"90px",
+                top:"-20px",
+                width:"500px",
+                items:[
+                    {text: "所属地市", value: "ssorg"},
+                    {text: "企业分类", value: "type"},
+                    {text: "企业规模", value: "empnum"},
+                    {text: "创建时间", value: "ctime"}
+                ],
+                onchanged:function(){}
+            });
+
+39.自主设置下拉框的值
+	view:
+		给下拉框添加 ondropdown 字段:
+			ondropdown:me.controller.func_setItems
+不同实现方式  只是使用的给下拉框赋值的方法不同。
+方法一：	setItems（）；		
+	controller:
+		me.func_setItems = function(){
+			var _rest = new mx.rpc.RESTClient();
+			var box = me.view.searchBox.getSearchParam();
+			_rest.get(ddd.mappath("~/rest/uapdepartment/parentDept"), box,
+				function(data) {
+					if (data.successful) {
+						e.target.setItems(data.resultValue.items);
+					}
+				});
+		};
+	后台:
+		String sql = "select dep_Id as depId, dep_name as depName from UAP_DEPARTMENT where dep_id in (select distinct parent_id from UAP_DEPARTMENT) ";
+			if (params != null) {
+
+				sql += " and dep_id in (select parent_id from uap_department where dep_name like '%"
+						+ params + "%')";
+			}
+			List<Object[]> result = hibernateDao.executeSqlQuery(sql);// 不带字段名,无数据量限制queryForListWithSql(sql);//带字段名,数据量在两千条之内
+			List<Map<String, Object>> n = new ArrayList<Map<String, Object>>();
+			for (Object[] m : result) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("value", String.valueOf(m[0]));
+				map.put("text", String.valueOf(m[1]));
+				n.add(map);
+			}
+			return n;
+
+方法二：appendItem（）；
+	前台：
+	  me.searchBoxQuerry = function(e){
+		var client = new mx.rpc.RESTClient();
+		
+    	var url=deptCJ.mappath("~/rest/uapdepartment/SearchParentDept");
+    	//查询部门的名称
+    	var wer=me.view.getDataGrid();
+    	var datas={
+    		deptName : me.view.getDataGrid().searchBox.editors[0].value
+    	};
+		
+    	var list = {};
+    	//这里使用getSync、sendSync(get方式)都可。但是使用sendSync(post)方式行不通，不知道为啥？？？
+    	//list=client.getSync(url,datas);
+		
+    	list=client.sendSync(url,"GET",datas);
+    		//拼接数据的时候，前台显示是setText
+	    	//后台是setValue,该设置只会显示一个值
+	    	//键值对形式 setItems
+	    	//appendItem(text.value);拼接数组
+			
+    	if(list != null){
+    		console.log(list.resultValue.items);//成立
+    		e.target.clearItems();//先清除下拉框中的内容
+	    	var value=list.resultValue.items;
+	    	for(var i=0;i<value.length;i++){
+	    		//使用appendItem拼接在下拉框中，appendItem(text.value)
+	    		e.target.appendItem(value[i].DEPNAME,value[i].DEPID);
+	    	}
+    	}
+    };
+	
+	后台：
+	public List<Map> querySearchBox(String param){
+		List<Map> list = new ArrayList();
+		String sql="select depname,depid from UAP_DEPARTMENT where depid in(select distinct(parentid) from UAP_DEPARTMENT where depname like '%"+param+"%')";
+		//String sql = "select depname from UAP_DEPARTMENT where depname like '%"+param+"%' ";
+		list=hibernateDao.queryForListWithSql(sql);
+		return list;
+	}
+	
+40: 弹出提示框
+	var msgBox = new mx.window.MsessageBox({
+		reusable : true,//一个Boolean值，表示弹出窗口是否可重用。
+		title : "标题",// 一个字符串，表示弹出窗口的标题。
+		showOkButton : true,//一个Boolean值，表示是否显示确定按纽。
+		showCancelButton : true,//一个Boolean值，表示是否显示取消按纽。
+		okButtonText : "确定",//一个字符串，表示第一个按纽名称。
+		cancelButtonText : "取消",// 一个字符串，表示第二个按纽名称。
+		message : "提示内容。",//一个字符串，表示弹出窗口的内容。
+		imgkey : "error",//一个字符串，表示弹出窗口的类型， 支持四种类型：info：提示信息 | warnning：警告信息 | error：错误信息 |prompt：输入框(如果类型是 prompt，可以调用时使用 function(){alert(this.textEditor.text);}来获取输入框的值)
+		okButtonCallback : function()
+		{//一个 Function 对象，表示第一个按钮的回调函数。
+			alert("第一个按纽回调")
+		},
+		cancelButtonCallback : function()
+		{//一个 Function 对象，表示第二个按钮的回调函数。
+			alert("第二个按纽回调")
+		}
+	});
+2.
+	msgBox.setMessage("setMessage");
+	msgBox.setTitle("setTitle");
+	msgBox.setOkButtonText("获取prompt的值");
+	msgBox.setCancelButtonText("canel");
+	msgBox.setImgkey("prompt");
+
+ msgBox.show( function(){
+		第一个按钮的回调函数;
+	}, function(){
+		第二个按钮的回调函数;
+	});
+
+数据库:
+	sjcx 
+    172.16.221.67:1521/wskf
+	
+	scyw
+	172.16.222.242/jxd
+
+	ip: 172.16.220.185;
+	
+
+ 
+ 
+
+	

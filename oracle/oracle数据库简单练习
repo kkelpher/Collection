@@ -1,0 +1,184 @@
+
+oracle练习：
+1）创建表空间：
+  1  SQL> create tablespace stuinfo
+  2  logging
+  3  datafile 'D:\oracle\oradata\stuinfo.dbf'
+  4  size 50m
+  5  autoextend on
+  6  next 50m maxsize 20480m
+  7  extent management local;
+
+表空间已创建。
+
+2）创建用户，并指定表空间
+  1  SQL> create user zhou identified by zhou
+  2  default tablespace stuinfo;
+
+用户已创建。
+
+3）给用户授权
+grant connect,resource to zhou;
+
+4)开始创建表
+创建复合主键：alter table 表明 add constraint pk_tab primary key (字段1,字段2);
+创建索引：create index 索引名 on 表名(字段名);
+
+5)将批量数据导入形影的数据库表中
+	两种方法：TextImporter...;ODBCImporter...
+	
+简单的sql语句：
+	1、查询生日小于1990-08-31的人（两种方法）
+	//这种方法比较时间格式
+	select * from STUINFO where sr > to_date('1990-08-31','yyyy-mm-dd')
+	
+	//这种方法是比较字符串的ascii码，从左到右开始比较。例如'20' 和'108'比较，'20'>'108'
+	select * from STUINFO where to_char(sr,'yyyy-mm-dd') > '1990-08-31'
+	
+	2、获取时间字段中的年月日
+	select extract(year from sysdate) from dual
+	select extract(month from sysdate) from dual
+	select extract(day from sysdate) from dual
+	
+	3、查询学生姓名为4个字的学生姓名
+	select xm from STUINFO where length(xm)=4
+	
+	*substr补充：substr（sfz,2,3）从左向右（从前向后）的第二位开始，向后数3位。
+		   substr(sfz，-2,3)从后向前数第二位开始，向后数3位
+	4、查询身份证倒数第二位以及身份证信息 371424199511154246
+	select sfz,substr(sfz,length(sfz)-1,1) from STUINFO---4
+	
+		查询学生身份证后两位
+		select substr(sfz,length(sfz)-1,2) from STUINFO-----46
+		
+		查询学生身份证 在倒数第二位开始的3位（包含倒数第二位）
+		select sfz,substr(sfz,length(sfz)-1,3) from STUINFO----46//因为后面没有了，所以截止到6停止
+	
+	5、取余：
+	mod(25,2) ---1
+	
+	6、	查询同一班级中重名的学生信息，以及重名的学生个数
+		select a.stuid,b.xm,b.bcount from STUINFO a right join
+		(select xm ,count(xm) as bcount ,bjid  from STUINFO group by xm,bjid having count(*) >  1) b
+		on a.xm=b.xm 
+	
+	7、统计每个班级学生数量，统表结果显示“班级名称”和“学生数量”两列，并按学生数量倒序显示
+		select bjid as 班级名称,count(1) as 学生数量 from stuinfo  group by bjid order by 学生数量 desc
+
+		
+循环update语句：for
+
+	8、根据学生表中学生的身份证号更新学生的生日
+	//循环修改学生生日的信息
+	begin
+		for l_record in (select stuid from stuinfo) loop
+			update stuinfo set sr =to_date(substr(sfz, 7, 8),'yyyy-mm-dd') where stuid = l_record.stuid;
+		end loop;
+	end;
+	
+	//循环修改学生姓名
+	9、将“三年级1班”的姓“王”学生的姓名改为姓“李”
+	begin
+		for l_record in (select replace(xm,'王','李') xx,stuid
+			            from stuinfo 
+						where xm in (select xm from stuinfo  where xm like '王%')) loop		
+			update stuinfo set xm = l_record.xx where stuid = l_record.stuid;
+		end loop;
+	end;
+
+	10、通过sql语句给学生表中的“班级名称”赋值，注意应与班级表中的班级代表对应?
+	begin
+		for l_record in (select stu.stuid as ssid, stu.bjid, bj.bjmc as bjmc
+							from stuinfo stu
+							left join bjinfo bj
+							on stu.bjid = bj.bjid) loop
+			update stuinfo
+			    set bjmc = l_record.bjmc
+				where stuid = l_record.ssid;
+		end loop;
+	end;
+
+	11、复制表中的一条记录到本表中。
+	insert into bjinfo (bjid,bjmc,bzr) 
+	select '20160101' as bjid,bjmc,bzr from bjinfo bj where bj.bjmc='一年级1班'
+	
+	
+	12、group by 
+		//查询有科目缺考（无相关科目的成绩）的学生信息
+		SELECT * FROM stuinfo WHERE STUID IN 
+			(SELECT CJ_STUID FROM CJINFO 
+			GROUP BY CJ_STUID 
+			having count(cj_stuid)<3)
+	
+//需要再进行优化？？？
+	13、查询每班级学生的各科成绩，如某科未考，则显示为“缺考”，按班级代码、学号进行排序
+			（注：输入结果应为：班级名称、学号、学生姓名、语文成绩、数学成绩、英语成绩，
+			如查询结果中没有显示“缺考”的，则说明查询的不对）
+			
+		//排序默认是升序asc, 可以自己设置降序desc
+		//在该方法中，使用decode来对缺考的学生成绩进行赋值，
+		//使用nvl不可以，有数据类型的限制
+		
+		//在使用left jion时，on和where条件的区别如下：
+			1）on条件是在生成临时表时使用的条件，它不管on中的条件是否为真，都会返回左边表中的记录。
+			2）where条件是在临时表生成好后，再对临时表进行过滤的条件。这时已经没有left join的含义（必须返回左边表的记录）了，条件不为真的就全部过滤掉。
+		
+	  select stu.stuid as 学号,
+		   stu.bjid as 班级代码, 
+		   stu.bjmc as 班级名称,
+		   stu.xm as 姓名,
+		   decode(cjc.cj_kscj, null, '缺考', cjc.cj_kscj) as 语文成绩,
+		   decode(cjm.cj_kscj, null, '缺考', cjm.cj_kscj) as 数学成绩,
+		   decode(cje.cj_kscj, null, '缺考', cje.cj_kscj) as 英语成绩
+	  from stuinfo stu
+	  left join cjinfo cjc
+		on stu.stuid = cjc.cj_stuid
+	   and cjc.cj_kmid  in (select kmid from kminfo where kmmc = '语文')
+	  left join cjinfo cjm
+		on stu.stuid = cjm.cj_stuid
+	   and cjm.cj_kmid in (select kmid from kminfo where kmmc = '数学')
+	  left join cjinfo cje
+		on stu.stuid = cje.cj_stuid
+	   and cje.cj_kmid in (select kmid from kminfo where kmmc = '英语')
+	   order by bjid desc,stu.stuid desc
+
+	14、统计每个年级学生成绩的总分排名，并按年级、总分、姓名进行排序
+	（注：输出结果应为：年级、班级，学号，姓名、总分）
+	 select substr(stu.bjmc, 1, 3) as 年级,
+		   stu.bjmc as 班级,
+		   stu.stuid as 学号,
+		   stu.xm as 姓名,
+		  (nvl(cjc.cj_kscj, 0) +  nvl(cjm.cj_kscj, 0) + nvl(cje.cj_kscj, 0)) as 总成绩
+	  from stuinfo stu
+	  left join cjinfo cjc
+		on stu.stuid = cjc.cj_stuid
+	   and cjc.cj_kmid in (select kmid from kminfo where kmmc = '语文')
+	  left join cjinfo cjm
+		on stu.stuid = cjm.cj_stuid
+	   and cjm.cj_kmid in (select kmid from kminfo where kmmc = '数学')
+	  left join cjinfo cje
+		on stu.stuid = cje.cj_stuid
+	   and cje.cj_kmid in (select kmid from kminfo where kmmc = '英语')
+	 order by 年级, stu.bjmc, 总成绩 desc,stu.xm
+	
+	
+sql语句优化：
+ 1、尽量避免在where子句中使用！= 或<>操作符。
+ 2、避免在where子句中对字段进行Null值判断，可以设置null值为0，再查询。
+ 3、避免where子句中使用or来连接条件，where num=10 or num = 20;
+ 可以使用 select* from fv where num =10 union all select ... where num =20 
+ 4、对于连续的数值，能用between 就不要用in。
+ 5、避免在where子句中对字段进行表达式操作，where 		num/2=100;应改为num=100*2；不要在where子句中的“=”左边进行函数、算数运算或者其他表达式运算。
+ 6、只含数值信息的字段尽量不要设计为字符型。引擎在处理查询和连接的时候会逐个比较字符串中的每一个字符，而对于数字型只需要比较一次。
+ 7、一个表的索引最多不要超过6个，因为会影响update 和 insert 的效率
+ 8、存在疑问？？？
+	ORA-01779: 无法修改与非键值保存表对应的列
+	update 
+	(select a.sr a1,substr(b.sfz,7,8) b1 from stuinfo a, stuinfo b where a.stuid = b.stuid) c
+	set c.a1 = c.b1;
+ 9、f5分析sql:
+		tree中左边是对执行计划的描述，table access full 是对全表扫描，nested loop 是嵌套连接
+		sort 是排序
+		看缩进，缩进越多，越先执行
+		右边看cost就行，cost越大，执行这个sql就越耗费资源
+ 

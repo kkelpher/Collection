@@ -1,0 +1,238 @@
+41、oracle常用函数：
+	1)case..when:
+		//查询员工表中员工的性别，若为1，则是男；若为0，则是女；若既不为1又不为0，则是其他。
+		select case emp_gender
+		when '1' then '男'
+		when '0' then '女'
+		else '其他' end
+		from UAP_EMP_INFO
+		
+		//更形象化，查询员工表中员工信息，性别显示为1的是男，显示为0的是女，没有显示的是空的
+		  select emp_name,emp_gender,
+			(case emp_gender
+			 when '1' then '男'
+			 when '0' then '女'
+			 else '空的'
+			 end)性别
+		  from UAP_EMP_INFO
+		  
+		//Case函数只返回第一个符合条件的值，剩下的Case部分将会被自动忽略。
+			select emp_gender，
+			(case when emp_gender in ('1','0') then '已写性别'
+			when emp_gender in('0') then '此时性别为女'
+			when emp_gender in('1') then '此时性别为男'
+			else '没有写性别' 
+			end)
+			from UAP_EMP_INFO
+		//这个sql,永远无法得到，’此时性别为女‘，’此时性别为男‘ 这两个选项
+			
+	
+	
+	2)decode:
+		Select decode（columnname，值1,翻译值1,值2,翻译值2,...值n,翻译值n,缺省值）From talbename  Where …
+		decode(条件,值1,翻译值1,值2,翻译值2,...值n,翻译值n,缺省值)的理解如下：
+		
+		if （条件==值1）
+
+		 then　　　　
+
+		return(翻译值1)
+
+		elsif （条件==值2）
+
+		then　　　　
+
+		return(翻译值2)　　　　
+
+		......
+
+		elsif （条件==值n）
+
+		 then　　　　
+
+		return(翻译值n)
+
+		else　　　　
+
+		return(缺省值)
+
+		end if
+		
+		//depid为1的时候，取电力公司；为2的时候，取电力事业部；都不是的时候，取other。
+		select decode(depid,'1','电力公司','2','电力事业部','other') from UAP_DEPARTMENT
+		
+
+	3)with....as:
+			sql查询时，需要对一批数据进行分析处理，但又不想将这批数据存入实体表，
+			可以使用with关键字，临时构建一个虚拟的数据集
+			实例：
+			with table1 as (
+			select 1 as a from dual
+			union
+			select 2 as a from dual
+			union
+			select 3 as a from dual
+			union 
+			select 4 as a from dual
+			)select AVG(a) from table1
+			------结果：AVG(a)  2.5
+	
+	
+	4)nvl:nvl(depPerNum,100)
+            如果depPerNum为空，返回100，否则返回depPerNum的值。
+	        实例：select nvl(deppernum,100) from UAP_DEPARTMENT
+			查询部门表中员工的人数，若人数为空，就为该部门添加100个人
+		NVL2 (exp, exp2, exp3)  如果不为空返回 exp2 ； 如果 exp 为空返回 exp3；
+		//查询员工表中的性别，若有则显示‘查询的是性别’，若没有，则显示‘超性别’
+		select nvl2(emp_gender,'查询的是性别','超性别') from UAP_EMP_INFO
+
+		
+	5)concat(char1,char2):
+			返回连接char2的char1
+			实例1：SELECT CONCAT('Hello','world') FROM dual;//	Helloworld
+			select 'Hello' || 'world' from dual   Helloworld
+			示例2：select concat(concat(depname,' 主要 '),depdesc) from UAP_DEPARTMENT
+			电力事业部 主要 负责电力业务拓展
+			
+		concat和||区别：
+		||可以连接两个字符，concat只可以连接两个字符。
+		select concat(depname,deppernum,depdesc) from UAP_DEPARTMENT//不成立
+
+		select depname || deppernum || depdesc from UAP_DEPARTMENT//成立
+
+			
+	6): to_char('日期类型','字符类型')
+	        select to_char(sysdate,'YYYY/MM/DD HH24:MI:SS') FROM DUAL;  -- 2018/04/20 15:24:13  
+            select to_char(sysdate,'YYYY/MM/DD HH:MI:SS') FROM DUAL;    -- 2018/04/20 03:25:23    
+
+
+删除字符串、空格：
+
+	7)replace:
+		replace(原字段，“原字段旧内容“,“原字段新内容“,)
+		select replace(deppernum,'2','a') from UAP_DEPARTMENT
+		//将部门表中员工人数中的2全部替换为字母a		
+		
+		
+	8)trim:
+		1. trim()删除字符串两边的空格。trim(' tech ');  ----  'tech'
+		2. ltrim()删除字符串左边的空格。
+		3. rtrim()删除字符串右边的空格。
+		4. trim('字符1' from '字符串2') 分别从字符2串的两边开始，删除指定的字符1。
+				字符1只能是单个字符。trim(' ' from ' tech ');--- 'tech'
+		5.trim([leading | trailing | both] char from string)　从字符串String中删除指定的字符char。
+				leading:从字符串的头开始删除。
+				trim(leading '0' from '000123');----'123'
+				trailing:从字符串的尾部开始删除。
+				trim(trailing '1' from 'Tech1');---- 'Tech'
+				borth:从字符串的两边删除。
+				trim(both '1' from '123Tech111')----'23Tech'
+		//将部门表中，部门人数开头为1的，删掉1.例：111234--234
+		select trim(leading '1' from deppernum) from UAP_DEPARTMENT
+		select trim('1' from deppernum) from UAP_DEPARTMENT//能实现同样的功能
+		若11123411，使用trim会---234
+	
+	9)exists/not exists:
+		select * from STUINFO where exists (select * from cjinfo where cjinfo.cj_stuid = stuinfo.stuid)
+		select * from STUINFO where not exists (select * from cjinfo where cjinfo.cj_stuid = stuinfo.stuid)
+		
+	10)	truncte: 保留表，但要删除表中所有记录。
+		drop：删除表
+		delete：删除部分记录
+	删除表（drop、delete）
+	
+	11）union 和 union all :
+			使用union和union all必须保证各个select 集合的结果有相同个数的列，并且每个列的类型是一样的。
+			但列名则不一定需要相同，oracle会将第一个结果的列名作为结果集的列名。
+			Union：对两个结果集进行并集操作，不包括重复行，同时进行默认规则的排序；
+			Union All：对两个结果集进行并集操作，包括重复行，不进行排序；
+			
+			示例：select stuid ,bjid from stuinfo union SELECT CJ_STUID,CJ_KMID FROM CJINFO
+					
+			
+	12)exists 和 in 的区别：
+		使用exists,oracle会首先执行主查询，然后运行子查询直到找到第一个匹配项。
+		使用in，oracle会首先执行子查询，将查询结果放在一个加了索引的临时表中，再执行主查询。
+		EXISTS:后面可以是整句的查询语句如:SELECT * FROM titles 
+　　	IN:后面只能是对单列:SELECT pub_id FROM titles 
+		
+	下面两个查询的结果是一样的
+			//in：
+			select * from STUINFO where stuid in (select cj_stuid from cjinfo )
+			//exists:
+			select * from STUINFO where exists (select * from cjinfo where cjinfo.cj_stuid = stuinfo.stuid)
+
+	13）取余：
+	mod(25,2) ---1
+	
+	
+	14）循环update语句：for
+	
+	根据学生表中学生的身份证号更新学生的生日
+	//循环修改学生生日的信息
+	begin
+		for l_record in (select stuid from stuinfo) loop
+			update stuinfo set sr =to_date(substr(sfz, 7, 8),'yyyy-mm-dd') where stuid = l_record.stuid;
+		end loop;
+	end;
+		
+	实例1：case ..when  和 with。。as的结合使用：
+	//先建立一个虚拟数据表table1
+	  with table1 as
+      (select '中国' as country, 600 as population from dual
+      union
+      select '美国' as country, 630 as population from dual
+      union
+      select '英国' as country, 230 as population from dual
+      union
+      select '德国' as country, 450 as population from dual
+      union
+      select '加拿大' as country, 320 as population from dual
+      union
+      select '日本' as country, 312 as population from dual
+      union
+      select '墨西哥' as country, 231 as population from dual
+      union
+      select '法国' as country, 783 as population from dual
+      union
+      select '印度' as country, 789 as population from dual)
+	  
+      select sum(population)as 人口 ,       //将不同的国家分到不同的州中，分组查询各大洲的人口数
+		(case country   
+		when  '中国' then '亚洲'
+        when  '印度' then '亚洲'
+        when  '日本' then '亚洲'
+        when  '加拿大' then '北美洲'
+        when  '美国' then '北美洲'
+        when  '墨西哥' then '北美洲'
+		else '其他州'
+        end)州
+     from table1
+     group by
+     case country
+		when  '中国' then '亚洲'
+        when  '印度' then '亚洲'
+        when  '日本' then '亚洲'
+        when  '加拿大' then '北美洲'
+        when  '美国' then '北美洲'
+        when  '墨西哥' then '北美洲'
+		else '其他州'
+        end;
+	实例2：同理，也可以给工资分等级，并统计不同等级的人数。
+	SELECT 
+	CASE WHEN salary <= 500 THEN '1' 
+	WHEN salary > 500 AND salary <= 600  THEN '2' 
+	WHEN salary > 600 AND salary <= 800  THEN '3' 
+	WHEN salary > 800 AND salary <= 1000 THEN '4' 
+	ELSE NULL 
+	END as 工资等级, 
+	COUNT(*)  FROM    Table_A 
+	GROUP BY 
+	CASE WHEN salary <= 500 THEN '1' 
+	WHEN salary > 500 AND salary <= 600  THEN '2' 
+	WHEN salary > 600 AND salary <= 800  THEN '3' 
+	WHEN salary > 800 AND salary <= 1000 THEN '4' 
+	ELSE NULL 
+	END; 
+	
+	
