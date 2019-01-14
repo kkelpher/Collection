@@ -1,0 +1,25 @@
+1、hql:
+	hql是Hibernate Query Lnguage的缩写。和SQL语法很像。
+	是一种面向对象的查询语言，因此，SQL的操作对象是数据表和列等数据对象，而HQL的操作对象是类、实例、属性等。
+	HQL的关键字和函数都是不区分大小写的，但HQL语句中所使用的包名、类名、实例名、属性名都区分大小写。
+	
+	from子句：from关键字后紧跟持久化的类名！
+	from Person :表明从Person持久化类中选出全部的实例。
+	
+	select子句：select选择的属性必须是from后持久化类包含的属性。
+	例：select p.name from Person as p
+	as 关键字是可选的。
+	
+2、即席报表数据回填功能入口位于报表设计器的报表属性设置区
+3、echarts中想要改变图表的图例相关的属性通过改变Legend属性实现的。
+4、struts的mvc中属于view层的是()jsp页面
+	m:module,模型，可以是实体类
+	v:view，jsp页面
+	c:controller，控制层，还有逻辑层
+	
+5、使用SQLiteOpenHelper的构造方法创建与数据库连接时，参数可以设置为null的是CursorFactory
+6、JSP技术是在Servlet之后产生的，它以Servlet为核心技术，是Servlet技术的一个成功应用。
+7、Android广播分为两个方面:广播发送者和广播接收者
+
+	
+	
