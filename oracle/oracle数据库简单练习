@@ -32,6 +32,18 @@ group by 使用:
 	alter table 表名 rename column 旧列名 to 新列名
 	alter table stuinfo rename column xm to xxm
 
+6、小结：有关对表结构的修改
+
+	--删除表全部数据
+	delete from t2
+	--修改列的数据类型(需要数据清空，再修改数据类型)
+	alter table t2 modify e varchar2(10)
+	--修改列名（不需要清空数据）
+	alter table t2 rename column e to f
+	--添加列
+	alter table t2 add g varchar2(10)
+	--删除列(不需要清空数据)
+	alter table t2 drop column f
 
 
 oracle练习：
