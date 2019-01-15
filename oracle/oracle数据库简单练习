@@ -1,3 +1,38 @@
+oracle基本语法：
+
+1、插入：insert
+insert into 表名（列1,列2,列3,...）values(值1,值2,值3,...)
+表名后面的列可省略，默认插入全部的列。
+
+2、修改 update
+update 表名 set 列1 = 值1,列2 = 值2 where 子句
+
+3、删除 delete
+delete from 表名；  全删
+delete from 表名 where 子句；  有条件删除
+
+4、group by 分组查询 ， 后有条件使用having
+例如查询每个学生的总成绩，按学号进行分组查询
+select stuid,sum(cj) from cjinfo group by stuid 
+(按照学生学号进行分组查询，成绩总和使用sum函数)
+
+成绩表中含有 学生id，课程id,成绩（score）
+若要查询 每一门课的平均绩 或者 某个人的所有课的总成绩 需要用到group by 分组查询
+
+group by 使用:
+	SELECT CourseID, AVG(Score) AS 课程平均成绩
+	FROM Score
+	GROUP BY CourseID
+	
+	select stuid, sum(score) as 学生总成绩 
+	from Score
+	group by stuid
+	
+5、修改列名：
+	alter table 表名 rename column 旧列名 to 新列名
+	alter table stuinfo rename column xm to xxm
+
+
 
 oracle练习：
 1）创建表空间：
@@ -110,7 +145,11 @@ grant connect,resource to zhou;
 			GROUP BY CJ_STUID 
 			having count(cj_stuid)<3)
 	
-//需要再进行优化？？？
+	使用in查询的时候，表中记录不能超过1000条，
+	若表中记录过多，推荐使用with...as先查出临时表，再根据临时表进行后面的查询！！！
+	
+	
+//需要再进行优化？？？（可能已经找到问题，查询总成绩的时候，使用group by  会比较方便）
 	13、查询每班级学生的各科成绩，如某科未考，则显示为“缺考”，按班级代码、学号进行排序
 			（注：输入结果应为：班级名称、学号、学生姓名、语文成绩、数学成绩、英语成绩，
 			如查询结果中没有显示“缺考”的，则说明查询的不对）
@@ -144,6 +183,7 @@ grant connect,resource to zhou;
 
 	14、统计每个年级学生成绩的总分排名，并按年级、总分、姓名进行排序
 	（注：输出结果应为：年级、班级，学号，姓名、总分）
+	方法一：使用伪表，多次查询，左链接（很麻烦！！！）
 	 select substr(stu.bjmc, 1, 3) as 年级,
 		   stu.bjmc as 班级,
 		   stu.stuid as 学号,
@@ -160,6 +200,39 @@ grant connect,resource to zhou;
 		on stu.stuid = cje.cj_stuid
 	   and cje.cj_kmid in (select kmid from kminfo where kmmc = '英语')
 	 order by 年级, stu.bjmc, 总成绩 desc,stu.xm
+	
+	查询总成绩，较简单方式：使用group by 语句 分组查询
+	简单示例：
+	select cj_stuid,sum(cj_kscj) as ss from cjinfo group by cj_stuid
+	
+	方法二：使用group by:
+	select substr(stu.bjmc, 1, 3) as 年级,
+       stu.bjmc as 班级,
+       stu.xm as 姓名,
+       a.cj_stuid as 学号,
+       a.ss as 总成绩
+	from stuinfo stu,
+       (select cj_stuid, sum(cj_kscj) as ss from cjinfo group by cj_stuid) a
+	where stu.stuid = a.cj_stuid
+	order by 年级, stu.bjmc, a.ss desc, stu.xm
+
+	
+	方法三：使用with... as ,group by (和方法二类似)
+	with table2 as
+	(select cj_stuid, sum(cj_kscj) as ss from cjinfo group by cj_stuid)
+    select table2.cj_stuid,
+          table2.ss,
+          stu.xm,
+          substr(stu.bjmc, 1, 3) as 年级,
+          stu.bjmc
+    from table2, stuinfo stu
+    where table2.cj_stuid = stu.stuid
+    order by 年级, stu.bjmc, table2.ss desc, stu.xm
+
+	
+	15、修改列名：
+	alter table 表名 rename 旧列 to 新列 
+	
 	
 	
 sql语句优化：
