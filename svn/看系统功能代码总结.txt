@@ -1,0 +1,87 @@
+稳一点~ 静一点~
+该文档的功能实现都是在mxpms的前提下
+
+1、全局窗口方法
+	param参数：
+		openView:窗口中包含的展示页面
+		dialogText:窗口的标题
+		winWidth:窗口宽度
+		winHeight:窗口高度
+	function功能函数：
+		function _winQJShowDialog(openView,dialogText,winHeight,winWidth){
+			//定义一个全局的windowManager,用来负责窗口的弹出
+			var mgr = new mxpms.windows.WindowManager();
+			
+			//弹出窗口
+			var _win = null;
+			if(mgr != null){
+				_win = mgr.create({
+					height : winHeight,
+					width : winWidth,
+					title : dialogText,
+					reusable : true,	//获取或设置当前窗体是否可被重复利用
+					resizable:false 	//获取是否可以由用户自定义窗体大小，
+											若为false,displayMaxButton会被设置为false，
+											displayMaxButton 为获取或设置是否显示“最大化”按钮
+				});
+			}
+			_win.setView(openView);
+			return _win;
+			
+		}
+	
+	调用的时候：
+	//获取到需要放置的视图
+		var selzfxlView = new selzfxl.views.MainViewController().getView(); 
+	//调用全局窗口
+		var win = _winQJShowDialog(selzfxlView,"电站/线路选择树",280,400);
+	//显示窗口
+		win.showDialog();
+	有一个获取对话框返回值的回掉函数：
+		win.showDialog(function(p_dialog){
+			//p_dialog代表当前的窗体对象，
+			//通过p_dialog.dialogResult来获取对话框的返回值。
+			var resultValue = p_dialog.dialogResult;
+			
+		})
+		
+2、searchBox：
+	加载查询区：
+	searchBox.setFields();
+	关闭重置按钮
+	searchBox.resetButton.off("click");
+	自定义重置按钮
+	searchBox.resetButton.on("click",me.controller.btnResetCheck_click);
+	
+	同理：
+	自定义查询按钮：
+	加载查询区：searchBox.setFields();
+	关闭查询按钮：
+	searchBox.searchButton.off("click");
+	searchBox.searchButton.on("click",me.controller.btnSearchCheck_click);
+
+	有条件重置按钮：(比如设置计划状态文本框的值为 计划制定)
+	me.btnResetCheck_click = function(){
+	var length = me.view.searchBox.editors.length;
+		for(var i=0;i<length; i++){
+			if(me.view.searchBox.editors[i].name== "jhzt"){
+				me.view.searchBox.editors[i].setValue("JHZT_BZ","计划制定");
+			}else{
+				me.view.searchBox.editors[i].setValue(null,null);
+			}
+		}
+		
+	}
+
+3、设置更多功能里面某两个功能为不可用的灰色：
+me.view._toolbar.items["#otherMenuGroup"].items["#changeplan"].setEnable(false);
+me.view._toolbar.items["#otherMenuGroup"].items["#cancelplan"].setEnable(false);
+
+4、表格是否要各行变色
+ me.view._dataGrid.allowInterlacedRow = false;//不各行变色
+ 
+ 5、直接在mainview中 实现页面 工具栏提示：
+ var wartext = $("<span style = 'float : center;width :auto'><font color = red>标记红色：你猜哦</span>");
+ dataGrid.$(".pageNaviBar").append(wartext);
+ 
+ 
