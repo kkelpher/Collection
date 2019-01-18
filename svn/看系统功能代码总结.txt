@@ -84,4 +84,68 @@ me.view._toolbar.items["#otherMenuGroup"].items["#cancelplan"].setEnable(false);
  var wartext = $("<span style = 'float : center;width :auto'><font color = red>标记红色：你猜哦</span>");
  dataGrid.$(".pageNaviBar").append(wartext);
  
+ 6、GridEntityContainer（本地、非本地）
+ 
+ 非本地的表格数据容器：
+ var restUrl = "~/rest/uapdepartment/querryDept";
+ var gridEntityContainer = new mx.datacontainers.GridEntityContainer({
+        	loadMeta : false,//mate报错不出现
+            baseUrl : deptCJ.mappath(restUrl),
+            iscID : "-1", // iscID 是数据元素的统一权限功能编码。默认值为  "-1" ，表示不应用权限设置。
+            primaryKey: "depId"
+        });
+ 在初始化datagrid里面写上： entityContainer: gridEntityContainer //加载数据的
+ 非本地的表格数据容器，是通过走后台查询数据封装起来的。
+ 
+ 本地的表格数据容器：
+ me.gridLocalEntityContainer = new  mx.datacontainers.GridEntityContainer({
+	type : "local",//声明容器类型为本地数据
+	primaryKey : "objid",
+	data : [],
+	onload : me.controller._gridLocalEntityContainer_load;	
+ });
+ 
+ 本地表格数据容器 要声明容器类型为本地。
+ 只有需要数据字典的字段才会有数据字典。
+ 
+ me._gridLocalEntityContainer_load = function(e){
+	e.itemCount = me.itemCount;
+	e.items = me.data;
+	e.target.dicts = me.dictItems;
+ }
+ 
+ //查询函数
+ me.searchButton = function (){	
+	//经过后台查询得到返回中数据
+	var restClient = new mx.rpc.RESTClient();
+		// 获取数据列表
+	var result = restClient.getSync(
+					jxjhsh.mappath("~/rest/tyjdwyjjxjh/getUserTaskList"), 
+					param);
+	if(result.successful){
+		//获得数据
+		var items = result.resultValue.items;
+		//获得数据字典(若有多个字段设置为数据字典，则获取到的为一个数据字典数组)
+		var dicts = result.resultValue.dicts; //下拉框的字段名和数据
+		//处理数据字段的格式
+		for(var j=0;j<dicts.length; j++ ){
+			var item = [];
+			//每一个字段的数据字典都包含多个该字段的数据（text\value,二次循环拿到这些值）
+			for(var k = 0;k<dicts[j].values.length; k++){
+				item.add({
+					text : dicts[j].value[k].text,
+					value : dicts[j].value[k].value
+				});
+			}
+			me.dictItems(dicts[j].name) = item;
+		}
+		//获得数据以及数据条目
+		me.data = result.resultValue.items;
+		me.itemCount = result.resultValue.itemCount;
+	}
+				
+ }
+ 
+ 
+ 
  
