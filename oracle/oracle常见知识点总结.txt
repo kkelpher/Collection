@@ -1,0 +1,18 @@
+oracle sql的硬解析和软解析
+两种类型的语言：DML\DDL
+DDL:create,drop,alter
+DML:insert,update,delete,select
+SQL解析过程:
+	1、语法检查：检查sql是否合法
+	2、语义检查：检查sql中访问对象是否存在或该用户是否具备相应的权限
+	3、sql语句解析：（硬解析或软解析）    生成解析书及执行计划
+	4、执行sql
+	
+	硬解析：就是将sql完全重新从头进行解析（即将解析过程重新从头执行）
+	软解析：在共享池中检查是否有完全相同的之前完全解析好的，如果存在，直接跳过第3步，运行sql。
+
+小注：创建解析书、生成执行计划对于sql来说是开销昂贵的动作，所以，应当极力避免硬解析。
+故：在代码中多使用绑定变量。
+示例：
+	String sql = "delete from UAP_DEPARTMENT where depId = ?";
+	int i = hibernateDao.executeSqlUpdate(sql,new Object[]{id});
