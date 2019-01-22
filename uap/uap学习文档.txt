@@ -12,7 +12,7 @@
 1.searchBox重写重置按钮方法
 
 me.searchBox.setFields();// 加载查询区
-me.searchBox.resstButton.off("click");
+me.searchBox.resetButton.off("click");
 me.searchBox.resetButton.on("click",me.controller.btnResetCheck_click);
 me.searchBox.searchButton.on("click",me.controller.query);
 小注：要先关闭自己生成的重置按钮，再重写方法！！！
@@ -79,7 +79,7 @@ dropDownEditor.setValue("Student", "学生A", true);
 	
 	获取或设置导出 Excel 时服务端需要的参数。 该属性为一个 JSON 对象，如（{ tableName:"t_user", columnNames:"name,age,gender", columnCaptions:"姓名,年龄,性别", pageIndex:1, pageSize:20, filter:"gender='男' and age=25", fileName:"用户表格"}）。 其中 tableName 表示表名称、columnNames 表示数据库列名（以逗号隔开）、columnCaptions 表示导出 Excel 的标题（以逗号隔开）、pageIndex 表示导出第几页的数据（第一页为 1）、pageSize 表示每页的条数、filter 表示过滤条件、fileName 表示导出的文件名。 这些参数中必须要传的为：tableName、columnCaptions。
 
-13.将excel文件导入到数据库 
+
 
 14.设置表格某一列字段点击事件(超链接)
 view:
@@ -484,7 +484,7 @@ controller:
 			alert("第二个按纽回调")
 		}
 	});
-2.
+2）.
 	msgBox.setMessage("setMessage");
 	msgBox.setTitle("setTitle");
 	msgBox.setOkButtonText("获取prompt的值");
@@ -496,6 +496,14 @@ controller:
 	}, function(){
 		第二个按钮的回调函数;
 	});
+
+	
+41、使用js实现将toolbar工具条移到searchBox的下面
+	  if (_dataGrid.searchBox) {
+        	// 调整SearchBox位置在toolbar之前
+        	_dataGrid.toolBar.$e.insertAfter(_dataGrid.searchBox.$e);
+        	
+        }
 
 数据库:
 	sjcx 
