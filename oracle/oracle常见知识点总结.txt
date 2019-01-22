@@ -2,7 +2,7 @@ oracle sql的硬解析和软解析
 两种类型的语言：DML\DDL
 DDL:create,drop,alter
 DML:insert,update,delete,select
-SQL解析过程:
+1、SQL解析过程:
 	1、语法检查：检查sql是否合法
 	2、语义检查：检查sql中访问对象是否存在或该用户是否具备相应的权限
 	3、sql语句解析：（硬解析或软解析）    生成解析书及执行计划
@@ -11,8 +11,26 @@ SQL解析过程:
 	硬解析：就是将sql完全重新从头进行解析（即将解析过程重新从头执行）
 	软解析：在共享池中检查是否有完全相同的之前完全解析好的，如果存在，直接跳过第3步，运行sql。
 
-小注：创建解析书、生成执行计划对于sql来说是开销昂贵的动作，所以，应当极力避免硬解析。
-故：在代码中多使用绑定变量。
-示例：
-	String sql = "delete from UAP_DEPARTMENT where depId = ?";
-	int i = hibernateDao.executeSqlUpdate(sql,new Object[]{id});
+	小注：创建解析书、生成执行计划对于sql来说是开销昂贵的动作，所以，应当极力避免硬解析。
+	故：在代码中多使用绑定变量。
+	示例：
+		String sql = "delete from UAP_DEPARTMENT where depId = ?";
+		int i = hibernateDao.executeSqlUpdate(sql,new Object[]{id});
+		
+2、为什么使用事务？
+	事务流程：
+		开启事务：会把所有的操作先存放到事务日志data目录下
+		进行事务操作
+		关闭事务
+		commit提交事务
+		rollback回滚事务：清空日志表
+		
+	事务的特性：
+		原子性：整个事务要么全部成功提交，要么全部失败回滚（就像转账时扣掉500后还没转就死机了会全部撤销操作）
+		隔离性：一个事务在完成前对其他事务是不可见的
+		一致性：事务操作前后，事务表中数据不会发生变化（只会在日志表中发生变化）
+		持久性：一旦事务提交会永久保存在数据库中
+		
+3、Hibernate的事务管理
+	事务，可以用于确保数据库能够被正确修改，避免数据只修改一部分而导致数据不完整。
+	
