@@ -1,0 +1,54 @@
+1.getSync(url,data);后台使用注解@RequestParam(value="");获取参数==>适用于单个参数的传递;
+2.sendSync(url,"post/get",param);后台使用List<map>接收参数;前台参数类型为JOSN.stringify({items:params}); 
+        param为josn字符串格式;
+        HelloWorld
+
+
+        后台接收参数的注解:@RequestParam
+
+
+        前台:  
+		异步:
+                biab = [{}, {}, {}];
+                _rest.post(ddd.mappath("~/rest/uapdepartment/diyQuery/saves"), JSON
+						.stringify({"items" : biab
+								}), function(data) {
+					if (data.successful) {
+						var params = me.view.searchBox.getSearchParam();
+						me.view.dataGrid.setFilter(params);
+								me.view.dataGrid.load();
+					}
+				});
+		同步:
+				var delJXJH_RWC_GLB = _rest.sendSync(jxjhsh.mappath("~/rest/tyjdwyjjxjh/delJXJH_RWC_GLB"), "POST", JSON
+			.stringify({"items" : param
+					}));
+        后台: 
+                @RequestMapping(value = "/diyQuery/saves", method = RequestMethod.POST)
+	public @ItemResponseBody 
+	boolean saves(@ItemsRequestBody List<Map> list){ }
+
+
+	2.前台:
+	var url = ndjhbz2.mappath("~/rest/tyjdwyjjxjh/tdfwsbCreateGlData");
+			var datas = {
+				objids : me.view.tdfwsbIds.toString(),
+				jxjhid : jhID
+			}
+			var resultContent = restClient.getSync(url, datas);
+
+	后台: 
+		@RequestMapping("/tdfwsbCreateGlData")
+	public @ItemResponseBody
+	Object tdfwsbCreateGlData(
+			@RequestParam(value = "objids", required = false) String objids,
+			@RequestParam(value = "jxjhid", required = false) String jxjhid) {
+		Object result = ndjhbzBizc.tdfwsbCreateGlData(objids, jxjhid);
+		return result;
+	}
+	
+	
+	
+小注:使用同步请求getSync(url, datas)；或 sendSync(url, "POST", JSON.stringify({"items" : param}));
+		使用异步请求的时候，会先走完全部 再走回调函数
+		使用同步请求的时候，会从上到下走，先走完回调函数，再走后面的代码
