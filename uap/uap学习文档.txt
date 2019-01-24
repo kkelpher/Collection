@@ -525,8 +525,43 @@ controller:
 	sb2.deleteCharAt(1);---xz
 
 	
-	
+44、展开整棵树
+	 me._onactivate = function(e)
+    {
+    	//先走完整体，再走load回调
+        me.view.getTreeView().load(function(){
+        	debugger
+        	//展开整棵树 第一个根节点的展开回调第二个根节点
+        	me.view.getTreeView().getNode("p-001").expand(function(){
+        		me.view.getTreeView().getNode("p-002").expand(true);
+        	});
+        	
+        	
+        });
+    };
 
+	
+45、查询区单独拿出来：
+	 me.searchBox = new mx.datacontrols.DataGridSearchBox({
+    	   itemNumOfRow : 4,//每行排列4 个查询框
+			fields: [
+           // {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
+            {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: "/uap/testTree/rest/uapdepartment/tree"},
+            {	name: "deppernum", caption: "部门员工数", editorType: "NumberEditor"	},
+            {	name: "depdesc", caption: "部门描述", editorType: "TextEditor"	},
+            {	name: "depdate", caption: "部门创建日期", editorType: "DateTimeEditor"	, formatString: "yyyy-MM-dd"},
+	        {	name: "parentid", caption: "上级部门", editorType: "DropDownEditor"	}
+			],
+			pagedControl : _dataGrid,
+		});
+       //加载查询区
+  		me.searchBox.setFields();
+   		me.addControl(me.searchBox);
+ 
+ 46、DropDownTreeEditor 使用方法：
+		法一：直接在searchbox的fields里直接添加 {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
+		法二：创建控件：去搜api
+ 
 数据库:
 	sjcx 
     172.16.221.67:1521/wskf
