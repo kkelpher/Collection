@@ -504,6 +504,28 @@ controller:
         	_dataGrid.toolBar.$e.insertAfter(_dataGrid.searchBox.$e);
         	
         }
+		
+42、后台代码：
+	方法可以使用：queryForListWithSql;queryForIntWithSql;executeSqlQuery(sql,pageIndex,pageSize);
+	小注：尽量使用executeSqlQuery,会受配置文件的限制，每次查出2000条数据；
+	使用queryForListWithSql时，有多少条数据就会查出多少条，不受配置文件的限制。
+
+43、后台sql的拼接：StringBuffer
+	StringBuffer sql = new StringBuffer();
+	sql.append();
+	
+	删除字符串：
+	
+	delete(int a,int b)方法：包含两个参数，使用时删除索引从a到b（包括a不包括b）的所有字符；
+	deleteCharAt(int a)方法：只有一个参数，使用时删除索引为a的字符
+	
+	StringBuffer sb1 = new StringBuffer("abcd");
+	StringBuffer sb2 = new StringBuffer("xyz");	
+	sb1.delete(1,3); ---ad
+	sb2.deleteCharAt(1);---xz
+
+	
+	
 
 数据库:
 	sjcx 
