@@ -1,0 +1,17 @@
+1、展开整棵树
+	 me._onactivate = function(e)
+    {
+    	//先走完整体，再走load回调
+        me.view.getTreeView().load(function(){
+        	debugger
+        	//展开整棵树 第一个根节点的展开回调第二个根节点
+        	me.view.getTreeView().getNode("p-001").expand(function(){
+        		me.view.getTreeView().getNode("p-002").expand(true);
+        	});
+        	
+        	
+        });
+    };
+
+2、在dropDownTreeEditor编辑器中添加树：
+	直接在searchbox的fields里直接添加 {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
