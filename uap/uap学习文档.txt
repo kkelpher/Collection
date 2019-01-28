@@ -562,6 +562,43 @@ controller:
 		法一：直接在searchbox的fields里直接添加 {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
 		法二：创建控件：去搜api
  
+ 47、dataForm：
+ me.skinDataForm = new mx.datacontrols.SkinDataForm({
+				alias : "ndjhbzDetailViewDataForm", //别称
+				skinUrl : ndjhbz2.mappath("~/ndjhbz2/resources/skins/zhouEditJXJH3.htm"), //引入html文件
+				entityContainer : me.formEntityContainer,
+				isForm : true
+			});
+	小注：dataform引用html文件。
+	isForm:将和 EntityContainer 绑定使用,确定控件是否是表单控件
+	
+48、dataform表单的样式：
+ 可以在fields中直接添加；
+	 {	name: "depName", caption: "部门名称", editorType: "TextEditor"，bgColor:"red"}
+ 亦可以在表单价在完成后，添加样式。
+ 
+	//加载表单
+	 _form.load(me.objID,function(){
+	    	_form.$e.find("#depName").css({
+	    		"background-color" :"red"
+	    	});
+	 });
+	
+	在某一行前加*
+		_form.$e.find("#depPerNum label").before("<font style='color:red'>*</font>");
+ 
+ 49、各种可能的样式：
+	"padding-top": "1px",
+	"padding-bottom": "1px",
+	"padding-right": "1px",
+	"border-bottom": "1px #FFFFFF solid",
+	"text-align": "right",
+	"font-weight": "bold",
+	"color": "#6C6C6C",
+	"background-color": "#E4F2F6",
+	"border-right": "1px #FFFFFF solid",
+	"white-space": "nowrap"
+ 
 数据库:
 	sjcx 
     172.16.221.67:1521/wskf
