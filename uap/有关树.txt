@@ -15,3 +15,8 @@
 
 2、在dropDownTreeEditor编辑器中添加树：
 	直接在searchbox的fields里直接添加 {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
+	
+3、使用本地数据构造树时：
+	参考api,data字段在后台查（可用restClien来查询，返回List<Map>类的数据到前台，直接赋值即可）
+	
+4、
