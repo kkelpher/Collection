@@ -17,6 +17,175 @@
 	直接在searchbox的fields里直接添加 {	name: "depname", caption: "部门名称", editorType: "DropDownTreeEditor"	, url: dept.mappath("~/rest/uapdepartment/tree")},
 	
 3、使用本地数据构造树时：
+
 	参考api,data字段在后台查（可用restClien来查询，返回List<Map>类的数据到前台，直接赋值即可）
+	因为前台的参数data是List<Map>类型的，给data赋值。
 	
-4、
+	var treeEntityContainer = new mx.datacontainers.TreeEntityContainer({
+    type: "local",
+    data: [
+        {
+            id: "a",
+            text: "中国",
+            hasChildren: true,
+            childNodes:[
+                {
+                    id: "a-21",
+                    text: "江苏"
+                },
+                {
+                    id: "a-22",
+                    text: "台湾"
+                }
+            ]
+        },
+        {
+            id: "b",
+            text: "巴西"
+        }
+    ]
+});
+	
+	
+	
+4、验证树一系列方法以及事件：
+    me._tree_onnodeclick = function(e) {
+    	debugger
+    	//自定义一组树节点（包含子节点）
+    	var data =[{
+    		id:"a",
+    		text : "中国",
+    		itemType:"country",
+    		childNodes:[
+    		            {
+    		            	id : "a-21",
+    		            	text:"江苏",
+    		            	itemType:"city"
+    		            },
+    		            {
+    		            	id :"a-22",
+    		            	text:"台湾",
+    		            	itemType:"city"
+    		            }
+    		            ]
+    	},
+    	{
+    		id:"b",
+    		text:"巴西",
+    		itemType:"country"
+    	}
+    	];
+		var node ={
+    		id:"c",
+    		text : "子节点",
+    		itemType:"country"
+    	};
+    	var nodeRoot ={
+        		id:"d",
+        		text : "根节点",
+        		itemType:"country"
+        	};
+    	//使用contains方法
+    	if(!e.target.contains("#a")){
+		
+			//添加自定义的节点（包含子节点）
+    		e.target.appendNodes(data);	
+    	}
+    };
+	
+5、树的相关方法：
+
+    	//获取树节点
+    	var a = e.target.findNode("#a");
+		
+    	//获取第一个树节点
+    	var b = e.target.findNode("li:first-child");
+		
+    	//获取最后一个类型为country的节点,得到0个或一个节点
+    	var c = e.target.findNode("li[itemType='country']:last");
+		
+    	//获取所有类型为country的节点，得到节点数组
+    	var d = e.target.findNodes("li[itemType='country']");
+		
+		//释放对象运行时动态生成的内容,页面内容清空了
+    	//e.target.dispose();
+		
+		//清除树所有的节点
+    	//e.target.clearNodes();
+		
+		//获取所有选中的节点的唯一标识的集合，只有在displayCheckBox为true的时候才有效
+    	var f = e.target.getCheckedNodeIDs();
+		
+    	//获取所有选中的节点的集合，只有在displayCheckBox为true的时候才有效
+		var g = e.target.getCheckedNodes();
+		
+		//获取控件当前所属 Weblet 的上下文信息
+		//获取到一个对象，有id:myTree，name："树场景"，(创建场景)bundleName:testTree,webletId:myTree
+		var h = e.target.getContext();
+		
+		//获取控件容器对应的 HTML DOM 元素对象
+		//返回的是html样式的组合
+		var i = e.target.getEl();
+		
+		//隐藏树，隐藏后还能获取到相应的节点
+		//e.target.hide();
+		
+		//获取树节点
+		var nodea = e.target.findNode("#a");
+		var nodeb = e.target.findNode("#b");
+		
+		//节点有隐藏子节点的方法，没有hide()方法
+		//nodea.collapse();
+		
+		//将节点b插入到节点a之前
+		e.target.insertNodeBefore(nodeb, nodea.$e);
+		
+		//将节点b插入到节点a之后
+		e.target.insertNodeAfter(nodeb, nodea.$e);
+		
+		//获取树节点(获取到id为a的树节点)
+		//注！ 不可以写#a的形式
+		var k = e.target.getNode("a");
+		
+		//设置控件的高度
+		e.target.resizeTo("200","300"); 
+		
+		//刷新树节点,和load方法一样
+		//e.target.refresh();
+		
+		//添加根节点（该节点为第一个根节点）,返回该节点，
+		var n =e.target.prependNode(nodeRoot);
+		
+		//移动控件到某位置,要和position属性一块使用才会有效果
+		//设置position的值
+		e.target.setPosition("absolute");
+		e.target.moveTo("500px","200px");
+		
+		//择树控件的第一个节点。该方法仅当selection为空的时候有效
+    	var l=me.view.getTreeView().selectFirstNode();
+		可设置： autoSelect : false
+		
+		//选中指定的树节点！
+		//true: 要触发onselectionchanging 和 onselectionchanged事件
+		var m =e.target.selectNode(nodeb, true);
+		
+		//设置边框样式
+		e.target.setBorder("1px red solid");
+		
+		//设置下边界与父容器下边界的距离(与position一块使用，不能与moveTo一块使用)
+		e.target.setBottom(90);
+		
+		//设置样式
+		e.target.setCss({
+			"background-color":"red"
+		});
+		
+		//设置控件的显示，“none”，表示隐藏控件； “block”表示强制作为块对象呈递
+		e.target.setDisplay("none") ;
+		
+		//整个树都不可点击
+		e.target.setEnabled(false);
+		
+		
+		
+		
